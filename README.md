@@ -10,7 +10,7 @@
 
 Finding Viscosity of Liquid by Rotating Cylinder Method
 
-<b>Name of Developer | <b> Mohit Kumar
+<b>Mohit Kumar | <b> virtual-labs
 :--|:--|
 <b> Institute | <b> Rajkiya Engineering College, Banda 
 <b> Email id|     <b>  mohit.kumar162534@gmail.com
