@@ -2,128 +2,79 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Convex Lens Optics Lab – VR</title>
+<title>Convex / Concave Lens Optics Lab – VR</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
   body{
-    margin:0;
-    overflow:hidden;
-    background:#1f1f1f;
-    font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-    color:#eee;
+    margin:0; overflow:hidden; background:#000;
+    font-family:system-ui,sans-serif; color:#eee;
   }
   #info{
-    position:absolute;
-    top:16px;
-    left:16px;
-    background:rgba(0,0,0,.78);
-    padding:10px 14px;
-    border-radius:10px;
-    font-size:13px;
-    line-height:1.5;
-    backdrop-filter:blur(10px);
+    position:absolute; top:16px; left:16px;
+    background:rgba(0,0,0,.8); padding:10px 14px;
+    border-radius:10px; font-size:14px; pointer-events:none;
+    z-index:10; border:1px solid #444;
   }
-  #formula{
-    position:absolute;
-    top:16px;
-    right:18px;
-    background:rgba(0,0,0,.78);
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:15px;
+  #controls{
+    position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,.8); padding:15px 25px;
+    border-radius:20px; display:flex; flex-direction:column; gap:10px;
+    backdrop-filter:blur(5px); border:1px solid #444; min-width:300px;
+    z-index:10;
   }
-  #sliderWrap{
-    position:absolute;
-    left:50%;
-    bottom:32px;
-    transform:translateX(-50%);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:6px;
-    color:#f4f4f4;
-    font-size:13px;
-    background:rgba(0,0,0,.75);
-    padding:8px 16px 10px;
-    border-radius:999px;
-    backdrop-filter:blur(10px);
+  .row{ display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#ccc; }
+  input[type=range] { width: 160px; accent-color: #4aa8ff; cursor: pointer; }
+  .radio-group { display:flex; gap:15px; justify-content:center; margin-bottom:5px; }
+  label { cursor:pointer; display:flex; align-items:center; gap:5px; font-weight:bold; }
+  
+  #readout{
+    position:absolute; right:20px; bottom:100px;
+    background:rgba(0,0,0,.8); padding:15px;
+    border-radius:10px; font-family:monospace; font-size:13px;
+    line-height:1.6; border:1px solid #444; pointer-events:none;
   }
-  #uSlider{
-    width:260px;
-    accent-color:#4aa8ff;
-  }
-  #values{
-    position:absolute;
-    right:18px;
-    bottom:22px;
-    background:rgba(0,0,0,.78);
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:13px;
-    line-height:1.5;
-  }
-  #lensWrap{
-    position:absolute;
-    left:18px;
-    bottom:22px;
-    background:rgba(0,0,0,.78);
-    padding:8px 12px;
-    border-radius:8px;
-    font-size:13px;
-  }
-  #lensSelect{ width:140px; }
-
-  #VRButton, .webxr-button{
-    position:absolute !important;
-    left:50% !important;
-    bottom:78px !important;
-    transform:translateX(-50%) !important;
-    background:rgba(0,0,0,0.7) !important;
-    padding:4px 10px !important;
-    font-size:11px !important;
-    border-radius:999px !important;
-  }
+  .val { color:#4aa8ff; font-weight:bold; }
+  
+  #VRButton { bottom: 20px !important; right: 20px !important; left: auto !important; }
 </style>
 </head>
 <body>
 
 <div id="info">
-  <b>Convex Lens Optics Lab (VR)</b><br>
-  Object → Lens → Screen<br>
-  Mouse: rotate · Wheel: zoom
+  <b>Physics Lab: Convex & Concave Lens</b><br>
+  Object (Candle) → Lens → Image (Blue Arrow)<br>
+  <span style="color:#aaa; font-size:12px;">Mouse: Rotate | Scroll: Zoom | Right Click: Pan</span>
 </div>
 
-<div id="formula">
-  1/f = 1/v + 1/u
+<div id="readout">
+  u: <span id="uVal" class="val">-28.0</span> cm<br>
+  v: <span id="vVal" class="val">32.3</span> cm<br>
+  f: <span id="fVal" class="val">15.0</span> cm<br>
+  m: <span id="mVal" class="val">-1.15</span><br>
+  Img Height: <span id="hiVal" class="val">-5.8</span> cm
 </div>
 
-<div id="sliderWrap">
-  <label for="uSlider">Object Distance (u)</label>
-  <input id="uSlider" type="range" min="18" max="45" value="28" />
-</div>
-
-<div id="values">
-  u: <span id="uVal">28.0</span> cm<br>
-  v: <span id="vVal">28.0</span> cm<br>
-  f: <span id="fVal">15.0</span> cm
-</div>
-
-<div id="lensWrap">
-  Lens focal length:<br>
-  <select id="lensSelect">
-    <option value="10">f = 10 cm (strong)</option>
-    <option value="15" selected>f = 15 cm</option>
-    <option value="20">f = 20 cm (weak)</option>
-  </select>
+<div id="controls">
+  <div class="radio-group">
+    <label><input type="radio" name="lensType" value="convex" checked> Convex Lens</label>
+    <label><input type="radio" name="lensType" value="concave"> Concave Lens</label>
+  </div>
+  <div class="row">
+    <span>Object Dist (u)</span>
+    <input id="uSlider" type="range" min="15" max="50" value="28" step="0.5">
+  </div>
+  <div class="row">
+    <span>Focal Length (f)</span>
+    <input id="fSlider" type="range" min="10" max="25" value="15" step="1">
+  </div>
+  <div class="row">
+    <span>Object Height</span>
+    <input id="hSlider" type="range" min="2" max="10" value="5" step="0.5">
+  </div>
 </div>
 
 <script type="importmap">
-{
-  "imports":{
-    "three":"https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"
-  }
-}
+{ "imports":{ "three":"https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/" } }
 </script>
 
 <script type="module">
@@ -131,376 +82,338 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VRButton } from 'three/addons/webxr/VRButton.js';
 
-/* ========= BASIC SETUP ========= */
+// --- 1. SCENE SETUP ---
 const scene = new THREE.Scene();
-scene.background = new THREE.CanvasTexture(makeGradient());
+scene.background = new THREE.Color(0x1a1a1a);
+scene.fog = new THREE.Fog(0x1a1a1a, 2, 8);
 
-const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, 0.01, 50);
-camera.position.set(0.3, 1.25, 2.4);
+const camera = new THREE.PerspectiveCamera(50, innerWidth/innerHeight, 0.01, 100);
+camera.position.set(0.5, 1.6, 2.5);
 
-const renderer = new THREE.WebGLRenderer({ antialias:true });
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
-renderer.xr.enabled = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.xr.enabled = true;
 document.body.appendChild(renderer.domElement);
 document.body.appendChild(VRButton.createButton(renderer));
 
 const controls = new OrbitControls(camera, renderer.domElement);
-controls.target.set(0.0,0.9,0);
+controls.target.set(0, 0.9, 0);
 controls.enableDamping = true;
-controls.enablePan = true;
-controls.minDistance = 1.2;
-controls.maxDistance = 4.0;
+controls.maxDistance = 5;
 
-/* ========= LIGHTING ========= */
-scene.add(new THREE.AmbientLight(0xffffff, 0.45));
+// --- 2. LIGHTING & ENVIRONMENT ---
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
 
-const key = new THREE.DirectionalLight(0xffffff, 1.4);
-key.position.set(3.0, 4.0, 2.8);
-key.castShadow = true;
-key.shadow.mapSize.set(2048, 2048);
-key.shadow.camera.near = 0.2;
-key.shadow.camera.far  = 10;
-key.shadow.camera.left = -3;
-key.shadow.camera.right = 3;
-key.shadow.camera.top = 3;
-key.shadow.camera.bottom = -1;
-scene.add(key);
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+dirLight.position.set(2, 4, 3);
+dirLight.castShadow = true;
+dirLight.shadow.mapSize.set(2048, 2048);
+scene.add(dirLight);
 
-const fill = new THREE.DirectionalLight(0xffffff, 0.45);
-fill.position.set(-2.0, 3.0, -2.0);
-scene.add(fill);
+// Floor
+const floorGeo = new THREE.PlaneGeometry(10, 10);
+const floorMat = new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.8 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI/2;
+floor.receiveShadow = true;
+scene.add(floor);
 
-/* ========= TABLE ========= */
-const woodMat = makeWoodMaterial();
+// Table
+const tableY = 0.8;
+const tableGeo = new THREE.BoxGeometry(3.5, 0.05, 1.0);
+const tableMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.6 });
+const table = new THREE.Mesh(tableGeo, tableMat);
+table.position.y = tableY;
+table.castShadow = true;
+table.receiveShadow = true;
+scene.add(table);
 
-const TABLE_LEN = 4.0;
-const TABLE_H   = 0.08;
-const TABLE_Y   = 0.80;
-
-const tableTop = new THREE.Mesh(
-  new THREE.BoxGeometry(TABLE_LEN, TABLE_H, 0.9),
-  woodMat
-);
-tableTop.position.set(0.0, TABLE_Y, 0);
-tableTop.castShadow = true;
-tableTop.receiveShadow = true;
-scene.add(tableTop);
-
-const topY  = TABLE_Y + TABLE_H / 2;
-const LEG_H = topY;
-
-const legGeo = new THREE.BoxGeometry(0.14, LEG_H, 0.14);
-[-(TABLE_LEN/2-0.2), (TABLE_LEN/2-0.2)].forEach(x=>{
-  [-0.32, 0.32].forEach(z=>{
-    const leg = new THREE.Mesh(legGeo, woodMat);
-    leg.position.set(x, LEG_H/2, z);
+// Table Legs
+const legGeo = new THREE.BoxGeometry(0.1, tableY, 0.1);
+const legPos = [[-1.6, 0.4], [1.6, 0.4], [-1.6, -0.4], [1.6, -0.4]];
+legPos.forEach(p => {
+    const leg = new THREE.Mesh(legGeo, tableMat);
+    leg.position.set(p[0], tableY/2, p[1]);
     leg.castShadow = true;
-    leg.receiveShadow = true;
     scene.add(leg);
-  });
 });
 
-/* ========= OPTICAL BENCH (rail ON table) ========= */
-const benchMetal = new THREE.MeshStandardMaterial({
-  color:0x202020,
-  metalness:0.9,
-  roughness:0.18
+// Optical Rail
+const railHeight = 0.02;
+const railGeo = new THREE.BoxGeometry(3.2, railHeight, 0.15);
+const railMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.4 });
+const rail = new THREE.Mesh(railGeo, railMat);
+rail.position.set(0, tableY + 0.035, 0);
+rail.receiveShadow = true;
+scene.add(rail);
+
+// --- 3. OPTICS APPARATUS ---
+const CM_TO_M = 0.02;
+const OPTICAL_Y = tableY + 0.05 + 0.18;
+
+// Materials
+const metalMat = new THREE.MeshStandardMaterial({ color: 0x888888, metalness: 0.8, roughness: 0.2 });
+const blackMetalMat = new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.6, roughness: 0.5 });
+const glassMat = new THREE.MeshPhysicalMaterial({
+    color: 0xffffff, metalness: 0.1, roughness: 0, 
+    transmission: 0.99, thickness: 0.05, ior: 1.5, 
+    transparent: true, side: THREE.DoubleSide
 });
 
-const RAIL_H  = 0.04;
-const BENCH_BOTTOM_Y = topY;                // rail bottom and table top same
-const BENCH_CENTER_Y = BENCH_BOTTOM_Y + RAIL_H/2;
+// -- OBJECT (Candle) --
+const objGroup = new THREE.Group();
+scene.add(objGroup);
 
-const benchRail = new THREE.Mesh(
-  new THREE.BoxGeometry(3.4, RAIL_H, 0.11),
-  benchMetal
-);
-benchRail.position.set(0, BENCH_CENTER_Y, 0);
-benchRail.castShadow = true;
-benchRail.receiveShadow = true;
-scene.add(benchRail);
+const standBase = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.01, 0.12), blackMetalMat);
+const standRod = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.15), metalMat);
+standRod.position.y = 0.075;
+objGroup.add(standBase, standRod);
 
-const benchBase = new THREE.Mesh(
-  new THREE.BoxGeometry(3.45,0.01,0.15),
-  new THREE.MeshStandardMaterial({color:0x111111,roughness:0.8})
-);
-benchBase.position.set(0,BENCH_BOTTOM_Y+0.005,0);
-benchBase.receiveShadow = true;
-scene.add(benchBase);
+const candleGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.1);
+const candleMat = new THREE.MeshStandardMaterial({ color: 0xFFF8DC });
+const candle = new THREE.Mesh(candleGeo, candleMat);
+objGroup.add(candle);
 
-/* ========= MATERIALS ========= */
-const metal = new THREE.MeshStandardMaterial({
-  color:0x444444,
-  metalness:0.9,
-  roughness:0.25
-});
-const darkMetal = new THREE.MeshStandardMaterial({
-  color:0x202020,
-  metalness:0.9,
-  roughness:0.35
-});
+const flameGeo = new THREE.SphereGeometry(0.008);
+const flameMat = new THREE.MeshBasicMaterial({ color: 0xFFaa00 });
+const flame = new THREE.Mesh(flameGeo, flameMat);
+objGroup.add(flame);
 
-/* ========= APPARATUS (bases exactly on rail) ========= */
-const apparatus = new THREE.Group();
-// CORRECTION: Placed at X=0, Y=Rail Surface
-apparatus.position.set(0, 0.64, 0);
-scene.add(apparatus);
-
-const AXIS_Y = 0.24;
-
-/* ---- OBJECT ---- */
-const objBase = new THREE.Mesh(
-  new THREE.BoxGeometry(0.20,0.02,0.15),
-  darkMetal
-);
-// half-height = 0.01, so bottom at local y = 0 (contact plane)
-objBase.position.y = 0.01;
-objBase.castShadow = objBase.receiveShadow = true;
-
-const objRod = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.015,0.015,0.20,24),
-  metal
-);
-objRod.position.set(0,objBase.position.y+0.10,0);
-objRod.castShadow = true;
-
-const candle = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.03,0.03,0.18,32),
-  new THREE.MeshStandardMaterial({color:0xfff4dc, roughness:0.3})
-);
-candle.position.set(0,objRod.position.y+0.11,0);
-candle.castShadow = true;
-
-const flame = new THREE.Mesh(
-  new THREE.SphereGeometry(0.016,20,20),
-  new THREE.MeshBasicMaterial({color:0xfff7a3})
-);
-flame.position.set(0,candle.position.y+0.11,0);
-
-const objectStand = new THREE.Group();
-objectStand.add(objBase, objRod, candle, flame);
-objectStand.position.set(-1.0, AXIS_Y, 0);
-apparatus.add(objectStand);
-
-/* ---- LENS ---- */
-const lensBase = new THREE.Mesh(
-  new THREE.BoxGeometry(0.22,0.02,0.14),
-  darkMetal
-);
-lensBase.position.y = 0.01;  // same contact plane
-lensBase.castShadow = lensBase.receiveShadow = true;
-
-const lensRod = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.016,0.016,0.20,24),
-  metal
-);
-lensRod.position.set(0,lensBase.position.y+0.10,0);
-lensRod.castShadow = true;
-
-const lensGlass = new THREE.Mesh(
-  new THREE.SphereGeometry(0.19,64,64),
-  new THREE.MeshPhysicalMaterial({
-    transmission:0.97,
-    roughness:0.03,
-    thickness:0.15,
-    ior:1.52,
-    reflectivity:0.45,
-    clearcoat:0.4,
-    clearcoatRoughness:0.04,
-    color:0xf8fdff
-  })
-);
-lensGlass.scale.set(1,1,0.25);
-lensGlass.rotation.y = Math.PI/2;
-lensGlass.position.set(0,lensRod.position.y+0.11,0);
-lensGlass.castShadow = true;
-
-const lensRing = new THREE.Mesh(
-  new THREE.TorusGeometry(0.195,0.012,22,60),
-  metal
-);
-lensRing.position.copy(lensGlass.position);
-lensRing.rotation.y = Math.PI/2;
-
+// -- LENS SETUP --
 const lensGroup = new THREE.Group();
-lensGroup.add(lensBase, lensRod, lensGlass, lensRing);
-lensGroup.position.set(0, AXIS_Y, 0);
-apparatus.add(lensGroup);
+lensGroup.position.set(0, tableY + 0.05, 0);
+scene.add(lensGroup);
 
-/* ---- SCREEN ---- */
-const screenBase = new THREE.Mesh(
-  new THREE.BoxGeometry(0.22,0.02,0.15),
-  darkMetal
-);
-screenBase.position.y = 0.01;   // same contact plane
-screenBase.castShadow = screenBase.receiveShadow = true;
+const lensBase = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.01, 0.12), blackMetalMat);
+const lensRod = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.18), metalMat);
+lensRod.position.y = 0.09;
+lensGroup.add(lensBase, lensRod);
 
-const screenRod = new THREE.Mesh(
-  new THREE.CylinderGeometry(0.016,0.016,0.24,24),
-  metal
-);
-screenRod.position.set(0,screenBase.position.y+0.12,0);
-screenRod.castShadow = true;
+// Ring Holder Parameters
+const ringRadius = 0.16;
+const tubeRadius = 0.008;
 
-const screenPanel = new THREE.Mesh(
-  new THREE.BoxGeometry(0.42,0.32,0.02),
-  new THREE.MeshStandardMaterial({
-    color:0xffffff,
-    roughness:0.18,
-    metalness:0
-  })
-);
-screenPanel.rotation.y = Math.PI/2;
-screenPanel.position.set(0,screenRod.position.y+0.16,0);
-screenPanel.castShadow = true;
-screenPanel.receiveShadow = true;
+const lensRing = new THREE.Mesh(new THREE.TorusGeometry(ringRadius, tubeRadius, 16, 50), blackMetalMat);
+lensRing.position.y = 0.18;
+lensRing.rotation.y = Math.PI / 2;
+lensGroup.add(lensRing);
 
-const screenGroup = new THREE.Group();
-screenGroup.add(screenBase, screenRod, screenPanel);
-screenGroup.position.set(1.1, AXIS_Y, 0);
-apparatus.add(screenGroup);
+let lensMesh = null;
 
-/* ========= RAYS ========= */
-const rayGroup = new THREE.Group();
-scene.add(rayGroup);
-
-const RAY_COLOR1 = 0xfff15a;
-const RAY_COLOR2 = 0x6cff7a;
-const RAY_RADIUS = 0.006;
-
-function objectWorldTop(){
-  const top = new THREE.Vector3(0,flame.position.y,0);
-  return objectStand.localToWorld(top);
-}
-
-function addRay(a, b, color){
-  const len = a.distanceTo(b);
-  const geo = new THREE.CylinderGeometry(RAY_RADIUS,RAY_RADIUS,len,12);
-  const mat = new THREE.MeshBasicMaterial({color, toneMapped:false});
-  const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.copy(a).add(b).multiplyScalar(0.5);
-  mesh.lookAt(b);
-  mesh.rotateX(Math.PI/2);
-  rayGroup.add(mesh);
-}
-
-function updateRays(){
-  rayGroup.clear();
-  const objTop = objectWorldTop();
-  const lensX = lensGroup.position.x;
-  const screenX = screenGroup.position.x;
-  const axisY = objTop.y;
-
-  addRay(objTop, new THREE.Vector3(lensX, axisY, 0), RAY_COLOR1);
-
-  const fWorld = F_CM / 100.0;
-  const focusX = lensX + fWorld;
-  const focusPoint = new THREE.Vector3(focusX, axisY - 0.03, 0);
-  const onScreen = new THREE.Vector3(screenX, axisY - 0.06, 0);
-  addRay(new THREE.Vector3(lensX, axisY, 0), focusPoint, RAY_COLOR1);
-  addRay(focusPoint, onScreen, RAY_COLOR1);
-
-  addRay(objTop, onScreen, RAY_COLOR2);
-}
-
-/* ========= OPTICS ========= */
-const CM_TO_WORLD = 0.02;
-let F_CM = 15;
-
-const slider = document.getElementById('uSlider');
-const lensSelect = document.getElementById('lensSelect');
-const uSpan = document.getElementById('uVal');
-const vSpan = document.getElementById('vVal');
-const fSpan = document.getElementById('fVal');
-fSpan.textContent = F_CM.toFixed(1);
-
-lensSelect.addEventListener('change',()=>{
-  F_CM = parseFloat(lensSelect.value);
-  fSpan.textContent = F_CM.toFixed(1);
-  const scale = THREE.MathUtils.mapLinear(F_CM,10,20,0.27,0.19);
-  lensGlass.scale.z = scale * 0.25;
-  updateOptics();
-});
-
-function updateOptics(){
-  const u_cm = parseFloat(slider.value);
-  const f_cm = F_CM;
-  const v_cm = (f_cm * u_cm) / (u_cm - f_cm);
-
-  uSpan.textContent = u_cm.toFixed(1);
-  vSpan.textContent = v_cm.toFixed(1);
-
-  const lensX = 0;
-  const objX  = lensX - u_cm * CM_TO_WORLD;
-  const scrX  = lensX + v_cm * CM_TO_WORLD;
-
-  objectStand.position.x = objX;
-  screenGroup.position.x = scrX;
-
-  updateRays();
-}
-
-slider.addEventListener('input', updateOptics);
-updateOptics();
-
-/* ========= LOOP ========= */
-renderer.setAnimationLoop(()=>{
-  controls.update();
-  renderer.render(scene, camera);
-});
-
-/* ========= RESIZE ========= */
-addEventListener('resize',()=>{
-  camera.aspect = innerWidth / innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
-});
-
-/* ========= HELPERS ========= */
-function makeGradient(){
-  const c = document.createElement('canvas');
-  c.width = 512; c.height = 512;
-  const g = c.getContext('2d');
-  const grd = g.createLinearGradient(0,0,0,512);
-  grd.addColorStop(0,'#f4f4f4');
-  grd.addColorStop(0.35,'#c9c9c9');
-  grd.addColorStop(1,'#7a7a7a');
-  g.fillStyle = grd;
-  g.fillRect(0,0,512,512);
-  return c;
-}
-
-function makeWoodMaterial(){
-  const c = document.createElement('canvas');
-  c.width = 1024; c.height = 512;
-  const g = c.getContext('2d');
-  g.fillStyle = '#d3ae78';
-  g.fillRect(0,0,1024,512);
-
-  g.strokeStyle = 'rgba(96,62,30,0.55)';
-  g.lineWidth = 5;
-  for(let y=40;y<512;y+=46){
-    g.beginPath();
-    g.moveTo(0,y + (Math.random()*8-4));
-    for(let x=0;x<=1024;x+=32){
-      g.lineTo(x, y + (Math.random()*14-7));
+function createLens(type) {
+    if (lensMesh) {
+        lensGroup.remove(lensMesh);
+        lensMesh.geometry.dispose();
     }
-    g.stroke();
-  }
 
-  const tex = new THREE.CanvasTexture(c);
-  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(2.5,1.1);
-  tex.anisotropy = 8;
-  return new THREE.MeshStandardMaterial({
-    map:tex,
-    roughness:0.42,
-    metalness:0.05
-  });
+    let points = [];
+    const segments = 50;
+    
+    // Fit logic: Inner radius of ring = 0.16 - 0.008 = 0.152
+    // We use exactly 0.152 so it sits inside the groove
+    const radius = 0.152; 
+
+    if (type === 'convex') {
+        // Standard Convex Profile
+        for(let i=0; i<=segments; i++) {
+             const r = (i/segments) * radius;
+             const halfThick = 0.025 * (1 - Math.pow(r/radius, 2)); // Parabolic
+             points.push(new THREE.Vector2(r, halfThick));
+        }
+        points.push(new THREE.Vector2(radius, -0.001));
+        for(let i=segments; i>=0; i--) {
+             const r = (i/segments) * radius;
+             const halfThick = 0.025 * (1 - Math.pow(r/radius, 2));
+             points.push(new THREE.Vector2(r, -halfThick));
+        }
+
+    } else {
+        // FIXED CONCAVE PROFILE
+        // Thinner in center, Thicker at edge
+        // Edge thickness should match ring roughly but stay contained
+        const edgeHalfThick = 0.015; // 1.5cm edge thickness
+        const centerHalfThick = 0.002; // Very thin center
+
+        // Top Surface
+        for(let i=0; i<=segments; i++) {
+             const r = (i/segments) * radius;
+             // Parabolic curve from center to edge
+             const y = centerHalfThick + (edgeHalfThick - centerHalfThick) * Math.pow(r/radius, 2);
+             points.push(new THREE.Vector2(r, y));
+        }
+        
+        // Vertical Edge (Rim of the glass)
+        points.push(new THREE.Vector2(radius, -edgeHalfThick));
+
+        // Bottom Surface (Mirror of top)
+        for(let i=segments; i>=0; i--) {
+             const r = (i/segments) * radius;
+             const y = centerHalfThick + (edgeHalfThick - centerHalfThick) * Math.pow(r/radius, 2);
+             points.push(new THREE.Vector2(r, -y));
+        }
+    }
+
+    const geometry = new THREE.LatheGeometry(points, 64);
+    lensMesh = new THREE.Mesh(geometry, glassMat);
+    
+    // Rotate to face X-axis
+    lensMesh.rotation.z = -Math.PI / 2; 
+    
+    // Align exactly with ring center
+    lensMesh.position.y = 0.18;
+    lensGroup.add(lensMesh);
 }
+
+
+// -- IMAGE ARROW (Virtual/Real) --
+const arrowHelper = new THREE.ArrowHelper(
+    new THREE.Vector3(0, 1, 0), 
+    new THREE.Vector3(0, 0, 0), 
+    1, 
+    0x00aaff
+);
+scene.add(arrowHelper);
+
+
+// -- RAYS --
+const raysContainer = new THREE.Group();
+scene.add(raysContainer);
+
+function createRayLine(p1, p2, color, dashed=false) {
+    const d = p1.distanceTo(p2);
+    if(d < 0.001) return;
+    const geo = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+    let mat;
+    if(dashed) {
+        mat = new THREE.LineDashedMaterial({ color: color, dashSize: 0.05, gapSize: 0.03 });
+    } else {
+        mat = new THREE.LineBasicMaterial({ color: color });
+    }
+    const line = new THREE.Line(geo, mat);
+    if(dashed) line.computeLineDistances();
+    raysContainer.add(line);
+}
+
+
+// --- 4. LOGIC UPDATE ---
+const uSlider = document.getElementById('uSlider');
+const fSlider = document.getElementById('fSlider');
+const hSlider = document.getElementById('hSlider');
+const radios = document.getElementsByName('lensType');
+
+function updatePhysics() {
+    const u_cm = parseFloat(uSlider.value);
+    const f_cm = parseFloat(fSlider.value);
+    const h_cm = parseFloat(hSlider.value);
+    let type = 'convex';
+    radios.forEach(r => { if(r.checked) type = r.value; });
+
+    const u = -u_cm; 
+    let f = f_cm;
+    if(type === 'concave') f = -f_cm;
+
+    let v_cm = 0;
+    let isInfinity = false;
+
+    const val = (1/f) + (1/u);
+    if(Math.abs(val) < 0.001) {
+        isInfinity = true;
+        v_cm = 5000;
+    } else {
+        v_cm = 1 / val;
+    }
+
+    const m = v_cm / u;
+    const h_img_cm = m * h_cm;
+
+    // --- Update 3D Positions ---
+    
+    // 1. Object (Candle)
+    const objX = u * CM_TO_M;
+    objGroup.position.set(objX, tableY + 0.015, 0);
+    
+    const h_obj_m = h_cm * CM_TO_M;
+    candle.scale.y = h_obj_m / 0.1;
+    candle.position.y = 0.15 + (h_obj_m / 2);
+    flame.position.y = 0.15 + h_obj_m + 0.01;
+
+    // 2. Arrow (Image)
+    const imgX = v_cm * CM_TO_M;
+    if (!isInfinity) {
+        arrowHelper.visible = true;
+        arrowHelper.position.set(imgX, OPTICAL_Y, 0);
+        const h_img_m = h_img_cm * CM_TO_M;
+        if (h_img_m > 0) arrowHelper.setDirection(new THREE.Vector3(0, 1, 0));
+        else arrowHelper.setDirection(new THREE.Vector3(0, -1, 0));
+        
+        arrowHelper.setLength(Math.abs(h_img_m), 0.05, 0.02);
+    } else {
+        arrowHelper.visible = false;
+    }
+
+    // --- Ray Tracing Visualization ---
+    raysContainer.clear();
+    const topObj = new THREE.Vector3(objX, OPTICAL_Y + h_obj_m, 0);
+    const lensCenter = new THREE.Vector3(0, OPTICAL_Y, 0);
+    const lensTop = new THREE.Vector3(0, OPTICAL_Y + h_obj_m, 0);
+    
+    const F_right = new THREE.Vector3(Math.abs(f)*CM_TO_M, OPTICAL_Y, 0);
+    const F_left = new THREE.Vector3(-Math.abs(f)*CM_TO_M, OPTICAL_Y, 0);
+
+    // Ray 1: Parallel -> Focus
+    createRayLine(topObj, lensTop, 0xffff00);
+    if(type === 'convex') {
+        const dir = new THREE.Vector3().subVectors(F_right, lensTop).normalize();
+        const end = lensTop.clone().add(dir.multiplyScalar(5));
+        createRayLine(lensTop, end, 0xffff00);
+    } else {
+        const dir = new THREE.Vector3().subVectors(lensTop, F_left).normalize();
+        const end = lensTop.clone().add(dir.multiplyScalar(5));
+        createRayLine(lensTop, end, 0xffff00);
+        createRayLine(F_left, lensTop, 0xffff00, true);
+    }
+
+    // Ray 2: Through Optical Center
+    const dirCenter = new THREE.Vector3().subVectors(lensCenter, topObj).normalize();
+    const endCenter = topObj.clone().add(dirCenter.multiplyScalar(6));
+    createRayLine(topObj, endCenter, 0x00ff00);
+
+    // Update HTML Labels
+    document.getElementById('uVal').innerText = u_cm.toFixed(1);
+    document.getElementById('vVal').innerText = isInfinity ? "Inf" : v_cm.toFixed(1);
+    document.getElementById('fVal').innerText = f_cm.toFixed(1);
+    document.getElementById('mVal').innerText = isInfinity ? "Inf" : m.toFixed(2);
+    document.getElementById('hiVal').innerText = isInfinity ? "Inf" : h_img_cm.toFixed(1);
+}
+
+// Events
+radios.forEach(r => r.addEventListener('change', () => {
+    createLens(r.value);
+    updatePhysics();
+}));
+uSlider.addEventListener('input', updatePhysics);
+fSlider.addEventListener('input', updatePhysics);
+hSlider.addEventListener('input', updatePhysics);
+
+window.addEventListener('resize', () => {
+    camera.aspect = innerWidth / innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth, innerHeight);
+});
+
+renderer.setAnimationLoop(() => {
+    controls.update();
+    renderer.render(scene, camera);
+});
+
+// Init
+createLens('convex');
+updatePhysics();
+
 </script>
 </body>
 </html>
